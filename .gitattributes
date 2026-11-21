@@ -1,0 +1,4 @@
+# Satır sonları depoda LF tutulur; Windows/Linux farkı yüzünden her satır "değişmiş" görünmez.
+* text=auto
+*.jpg binary
+*.png binary
