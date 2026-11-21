@@ -91,13 +91,13 @@ function initUpload(p) {
 
   checkRateLimit(cache);
 
-  const guestRaw = String(p.guestName || '').trim().slice(0, 60);
+  const guestRaw = cleanFolderName(p.guestName);
   const baseName = cleanName(originalName.replace(/\.[^.]*$/, '')) || 'dosya';
-  const name = [Utilities.formatDate(new Date(), TZ, 'yyyyMMdd_HHmmss'), cleanName(guestRaw), baseName]
-    .filter(Boolean).join('_') + '.' + ext;
+  const name = Utilities.formatDate(new Date(), TZ, 'yyyyMMdd_HHmmss') + '_' + baseName + '.' + ext;
+  const parentId = guestRaw ? guestFolderId(guestRaw) : DRIVE_FOLDER_ID;   // ad girildiyse misafirin klasörü
 
   const url = createSession(
-    { name: name, mimeType: mimeType, parents: [DRIVE_FOLDER_ID], description: guestRaw ? 'Gönderen: ' + guestRaw : '' },
+    { name: name, mimeType: mimeType, parents: [parentId], description: guestRaw ? 'Gönderen: ' + guestRaw : '' },
     size
   );
   const state = { url: url, size: size, received: 0, name: name };
@@ -180,6 +180,49 @@ function putChunk(sessionUrl, bytes, offset, size) {
   if (code === 404 || code === 410) return { expired: true };
   console.error('putChunk ' + code + ' ' + res.getContentText().slice(0, 500));
   throw userError('Dosya parçası yüklenemedi.', 'chunk_failed', true);
+}
+
+/* ---------------- Misafir klasörleri ---------------- */
+
+/**
+ * Ana klasörün altında misafirin adıyla bir klasör döndürür; yoksa oluşturur.
+ * Aynı ad (büyük/küçük harf ya da fazla boşluk farkıyla) hep aynı klasöre gider.
+ * Kilit, aynı anda gelen yüklemelerin iki ayrı klasör açmasını önler.
+ */
+function guestFolderId(folderName) {
+  const key = 'gf_' + folderName.toLowerCase();
+  const props = PropertiesService.getScriptProperties();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const knownId = props.getProperty(key);
+    if (knownId && folderUsable(knownId)) return knownId;
+    const parent = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+    const existing = parent.getFoldersByName(folderName);
+    const folder = existing.hasNext() ? existing.next() : parent.createFolder(folderName);
+    props.setProperty(key, folder.getId());
+    return folder.getId();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function folderUsable(id) {
+  try {
+    return !DriveApp.getFolderById(id).isTrashed();
+  } catch (e) {
+    return false;                            // klasör silinmiş: yenisi açılır
+  }
+}
+
+/** Klasör adı: Türkçe harfler ve boşluklar kalır, sorunlu karakterler atılır. */
+function cleanFolderName(s) {
+  return String(s || '')
+    .normalize('NFC')
+    .replace(/[\\/:*?"<>|#%{}~&^`\[\]\u0000-\u001f\u007f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 60);
 }
 
 /* ---------------- Hız sınırı ---------------- */
