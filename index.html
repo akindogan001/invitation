@@ -41,7 +41,7 @@ body{margin:0;min-width:320px;overflow-x:hidden}
 .upload-note{font-size:14px;margin-top:12px}
 .guest-name{display:block;max-width:320px;margin:0 auto 16px}.guest-name span{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
 .guest-name input{width:100%;margin-top:4px;padding:6px 4px;border:0;border-bottom:1px solid;border-radius:0;background:transparent;color:inherit;font:inherit;font-size:20px;text-align:center}
-.guest-name input:focus{outline:none}.guest-name input::placeholder{transition:opacity .35s ease}.guest-name input.ph-out::placeholder{opacity:0}
+.guest-name input:focus{outline:none}
 .upload-progress{max-width:360px;margin:12px auto 0}.upload-progress[hidden]{display:none}
 .upload-progress-track{height:8px;overflow:hidden}.upload-progress-bar{height:100%;width:0;transition:width .18s ease}
 .upload-progress-text{font-size:14px;margin-top:6px}
@@ -177,7 +177,7 @@ h1{font-family:Cinzel,serif;font-size:clamp(17px,4vw,24px);font-weight:400;lette
 <section class="upload reveal" aria-labelledby="upload-title">
   <h2 id="upload-title">Anılarımızı Birlikte Biriktirelim</h2>
   <p>Bu güzel günden çektiğiniz fotoğraf ve videoları bizimle paylaşabilirsiniz.</p>
-  <label class="guest-name"><span>Adınız (isteğe bağlı)</span><input id="guestName" type="text" maxlength="60" autocomplete="name" placeholder="Örn. Halay Başı Mehmet Amca"></label>
+  <label class="guest-name"><span>Adınız (isteğe bağlı)</span><input id="guestName" type="text" maxlength="60" autocomplete="name"></label>
   <input id="photoInput" type="file" accept="image/*,video/*" multiple hidden>
   <button id="selectPhotosButton" class="button" type="button">Fotoğraf / Video Yükle</button>
   <div class="upload-note">Dosya başına en fazla 500 MB · Yükleme bitene kadar sayfayı açık tutun.</div>
@@ -241,12 +241,6 @@ let uploading=false;
 
 try{guestNameInput.value=localStorage.getItem("guestName")||"";}catch(e){}
 guestNameInput.addEventListener("change",()=>{try{localStorage.setItem("guestName",guestNameInput.value.trim());}catch(e){}});
-// Ad alanındaki örnek birkaç saniyede bir değişir (alan boşken ve odakta değilken).
-(()=>{const ex=["Örn. Halay Başı Mehmet Amca","Örn. Takıları Sayan Ayşe Teyze","Örn. Pastayı İlk Deneyen Zeynep","Örn. Damadın Kankası Burak","Örn. Dans Pistinin Yıldızı Can","Örn. Gelinin Kuzeni Elif"];
- let i=0;const fade=!matchMedia("(prefers-reduced-motion: reduce)").matches;
- setInterval(()=>{if(guestNameInput.value||document.activeElement===guestNameInput)return;i=(i+1)%ex.length;
-  if(!fade){guestNameInput.placeholder=ex[i];return;}
-  guestNameInput.classList.add("ph-out");setTimeout(()=>{guestNameInput.placeholder=ex[i];guestNameInput.classList.remove("ph-out");},350);},2800);})();
 window.addEventListener("beforeunload",e=>{if(uploading){e.preventDefault();e.returnValue="";}});
 
 function setProgress(value){const pct=Math.max(0,Math.min(100,Math.round(value)));uploadProgress.hidden=false;uploadProgressBar.style.width=pct+"%";uploadProgressText.textContent=pct+"%";}
