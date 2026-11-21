@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Esra & Akin//Davetiye//TR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:esra-akin-nisan-20261205@akindogan001.github.io
+DTSTAMP:20261121T000000Z
+DTSTART:20261205T160000Z
+DTEND:20261205T200000Z
+SUMMARY:Esra & Akın Nişan Töreni
+LOCATION:Kiraz & Gülce Davet Salonu\, Emek\, Fatih Cd. No:48\, 34785 Sanca
+ ktepe/İstanbul
+DESCRIPTION:Nişan törenimize davetlisiniz. https://akindogan001.github.io
+ /invitation/
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Yarın Esra & Akın'ın nişanı
+END:VALARM
+END:VEVENT
+END:VCALENDAR
